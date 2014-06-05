@@ -253,6 +253,20 @@ void prune_notes(struct notes_tree *t, int flags);
  */
 void free_notes(struct notes_tree *t);
 
+/*
+ * Fill the given strbuf with the notes associated with the given object.
+ *
+ * If the given notes_tree structure is not initialized, it will be auto-
+ * initialized to the default value (see documentation for init_notes() above).
+ * If the given notes_tree is NULL, the internal/default notes_tree will be
+ * used instead.
+ *
+ * (raw != 0) gives the %N userformat; otherwise, the note message is given
+ * for human consumption.
+ */
+void format_note(struct notes_tree *t, const struct object_id *object_oid,
+                 struct strbuf *sb, const char *output_encoding, int raw);
+
 struct string_list;
 
 struct display_notes_opt {

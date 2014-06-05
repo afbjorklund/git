@@ -63,6 +63,20 @@ This is designed to be as compact as possible.
 
 	       <full commit message>
 
+* 'fullest'
+
+	  commit <sha1>
+	  Author:     <author>
+	  AuthorDate: <author date>
+	  Commit:     <committer>
+	  CommitDate: <committer date>
+	  Submit:     <submitted>
+	  SubmitDate: <submitted date>
+
+	       <title line>
+
+	       <full commit message>
+
 * 'email'
 
 	  From <sha1> <date>
@@ -181,6 +195,18 @@ The placeholders are:
 '%ct':: committer date, UNIX timestamp
 '%ci':: committer date, ISO 8601-like format
 '%cI':: committer date, strict ISO 8601 format
+'%un':: submitter name
+'%uN':: submitter name (respecting .mailmap, see
+	linkgit:git-shortlog[1] or linkgit:git-blame[1])
+'%ue':: submitter email
+'%uE':: submitter email (respecting .mailmap, see
+	linkgit:git-shortlog[1] or linkgit:git-blame[1])
+'%ud':: submitter date (format respects --date= option)
+'%uD':: submitter date, RFC2822 style
+'%ur':: submitter date, relative
+'%ut':: submitter date, UNIX timestamp
+'%ui':: submitter date, ISO 8601-like format
+'%uI':: submitter date, strict ISO 8601 format
 '%d':: ref names, like the --decorate option of linkgit:git-log[1]
 '%D':: ref names without the " (", ")" wrapping.
 '%S':: ref name given on the command line by which the commit was reached

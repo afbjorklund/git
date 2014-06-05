@@ -182,6 +182,7 @@ struct rev_info {
 			show_merge:1,
 			show_notes:1,
 			show_notes_given:1,
+			show_submitted:1,
 			show_signature:1,
 			pretty_given:1,
 			abbrev_commit:1,
@@ -249,6 +250,7 @@ struct rev_info {
 
 	/* notes-specific options: which refs to show */
 	struct display_notes_opt notes_opt;
+	struct notes_tree *review_tree;
 
 	/* interdiff */
 	const struct object_id *idiff_oid1;
