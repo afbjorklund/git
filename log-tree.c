@@ -682,6 +682,40 @@ void show_log(struct rev_info *opt)
 			: xcalloc(1, 1);
 	}
 
+	if (opt->show_submitted) {
+		struct strbuf reviewbuf = STRBUF_INIT;
+		struct strbuf subbuf = STRBUF_INIT;
+		const char *str;
+		size_t slen;
+
+		format_note(opt->review_tree, &commit->object.oid,
+			    &reviewbuf, get_log_output_encoding(), 1);
+		str = reviewbuf.buf;
+		slen = reviewbuf.len;
+		while (slen) {
+			int len = slen;
+			const char *end = memchr(str, '\n', slen);
+			if (end)
+				len = end - str + 1;
+			if (len > 14 && starts_with(str, "Submitted-by: ")) {
+				strbuf_add(&subbuf, str + 14, len - 14);
+				strbuf_rtrim(&subbuf);
+				strbuf_addch(&subbuf, ' ');
+			} else if (len > 14 && starts_with(str, "Submitted-at: ")) {
+				if (parse_date(str + 14, &subbuf) < 0)
+					strbuf_reset(&subbuf);
+				break;
+			}
+			str += len;
+			slen -= len;
+		}
+
+		ctx.submitted_len = subbuf.len;
+		ctx.submitted = subbuf.len ? strbuf_detach(&subbuf, NULL) : NULL;
+
+		strbuf_release(&subbuf);
+	}
+
 	/*
 	 * And then the pretty-printed message itself
 	 */
@@ -775,6 +809,9 @@ void show_log(struct rev_info *opt)
 
 		memcpy(&diff_queued_diff, &dq, sizeof(diff_queued_diff));
 	}
+
+	if (ctx.submitted)
+		free(ctx.submitted);
 }
 
 int log_tree_diff_flush(struct rev_info *opt)

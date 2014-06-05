@@ -95,6 +95,7 @@ static void setup_commit_formats(void)
 		{ "short",	CMIT_FMT_SHORT,		0,	0 },
 		{ "email",	CMIT_FMT_EMAIL,		0,	0 },
 		{ "mboxrd",	CMIT_FMT_MBOXRD,	0,	0 },
+		{ "fullest",	CMIT_FMT_FULLEST,	0,	8 },
 		{ "fuller",	CMIT_FMT_FULLER,	0,	8 },
 		{ "full",	CMIT_FMT_FULL,		0,	8 },
 		{ "oneline",	CMIT_FMT_ONELINE,	1,	0 }
@@ -486,8 +487,9 @@ void pp_user_info(struct pretty_print_context *pp,
 			strbuf_addch(sb, '\n');
 		strbuf_addf(sb, " <%.*s>\n", (int)maillen, mailbuf);
 	} else {
+		int date = (pp->fmt == CMIT_FMT_FULLER || pp->fmt == CMIT_FMT_FULLEST);
 		strbuf_addf(sb, "%s: %.*s%.*s <%.*s>\n", what,
-			    (pp->fmt == CMIT_FMT_FULLER) ? 4 : 0, "    ",
+			    date ? 4 : 0, "    ",
 			    (int)namelen, namebuf, (int)maillen, mailbuf);
 	}
 
@@ -502,6 +504,7 @@ void pp_user_info(struct pretty_print_context *pp,
 			    show_ident_date(&ident, DATE_MODE(RFC2822)));
 		break;
 	case CMIT_FMT_FULLER:
+	case CMIT_FMT_FULLEST:
 		strbuf_addf(sb, "%sDate: %s\n", what,
 			    show_ident_date(&ident, &pp->date_mode));
 		break;
@@ -1284,6 +1287,12 @@ static size_t format_commit_one(struct strbuf *sb, /* in UTF-8 */
 		return format_person_part(sb, placeholder[1],
 				   msg + c->committer.off, c->committer.len,
 				   &c->pretty_ctx->date_mode);
+	case 'S':	/* submitted ... */
+		if (c->pretty_ctx->submitted)
+		return format_person_part(sb, placeholder[1],
+				   c->pretty_ctx->submitted, c->pretty_ctx->submitted_len,
+				   &c->pretty_ctx->date_mode);
+		return 2;
 	case 'e':	/* encoding */
 		if (c->commit_encoding)
 			strbuf_addstr(sb, c->commit_encoding);
@@ -1498,6 +1507,9 @@ static size_t userformat_want_item(struct strbuf *sb, const char *placeholder,
 	case 'N':
 		w->notes = 1;
 		break;
+	case 'S':
+		w->submitted = 1;
+		break;
 	}
 	return 0;
 }
@@ -1603,15 +1615,23 @@ static void pp_header(struct pretty_print_context *pp,
 		 * MEDIUM == DEFAULT shows only author with dates.
 		 * FULL shows both authors but not dates.
 		 * FULLER shows both authors and dates.
+		 * FULLEST shows all authors and dates, incl. submit.
 		 */
 		if (skip_prefix(line, "author ", &name)) {
 			strbuf_grow(sb, linelen + 80);
 			pp_user_info(pp, "Author", sb, name, encoding);
 		}
 		if (skip_prefix(line, "committer ", &name) &&
-		    (pp->fmt == CMIT_FMT_FULL || pp->fmt == CMIT_FMT_FULLER)) {
+		    (pp->fmt == CMIT_FMT_FULL ||
+		     pp->fmt == CMIT_FMT_FULLER ||
+		     pp->fmt == CMIT_FMT_FULLEST)) {
 			strbuf_grow(sb, linelen + 80);
 			pp_user_info(pp, "Commit", sb, name, encoding);
+		if (pp->submitted &&
+		    pp->fmt == CMIT_FMT_FULLEST) {
+			strbuf_grow(sb, linelen + 80);
+			pp_user_info(pp, "Submit", sb, pp->submitted, encoding);
+		}
 		}
 	}
 }

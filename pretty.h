@@ -15,6 +15,7 @@ enum cmit_fmt {
 	CMIT_FMT_SHORT,
 	CMIT_FMT_FULL,
 	CMIT_FMT_FULLER,
+	CMIT_FMT_FULLEST,
 	CMIT_FMT_ONELINE,
 	CMIT_FMT_EMAIL,
 	CMIT_FMT_MBOXRD,
@@ -37,6 +38,8 @@ struct pretty_print_context {
 	int expand_tabs_in_log;
 	int need_8bit_cte;
 	char *notes_message;
+	char *submitted;
+	int submitted_len;
 	struct reflog_walk_info *reflog_info;
 	struct rev_info *rev;
 	const char *output_encoding;
@@ -60,6 +63,7 @@ static inline int cmit_fmt_is_mail(enum cmit_fmt fmt)
 
 struct userformat_want {
 	unsigned notes:1;
+	unsigned submitted:1;
 };
 
 /* Set the flag "w->notes" if there is placeholder %N in "fmt". */
