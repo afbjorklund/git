@@ -134,8 +134,6 @@ struct commit_list *copy_commit_list(struct commit_list *list);
 
 void free_commit_list(struct commit_list *list);
 
-struct rev_info; /* in revision.h, it circularly uses enum cmit_fmt */
-
 extern int has_non_ascii(const char *text);
 extern const char *logmsg_reencode(const struct commit *commit,
 				   char **commit_encoding,

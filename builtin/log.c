@@ -189,6 +189,12 @@ static void cmd_log_init_finish(int argc, const char **argv, const char *prefix,
 		rev->show_notes = 1;
 	if (rev->show_notes)
 		init_display_notes(&rev->notes_opt);
+	if ((rev->pretty_given && rev->commit_format == CMIT_FMT_FULLEST) || w.submitted) {
+		struct notes_tree *t = xcalloc(1, sizeof(struct notes_tree));
+		init_notes(t, "refs/notes/review", combine_notes_ignore, 0);
+		rev->review_tree = t;
+		rev->show_submitted = 1;
+	}
 
 	if ((rev->diffopt.pickaxe_opts & DIFF_PICKAXE_KINDS_MASK) ||
 	    rev->diffopt.filter || rev->diffopt.flags.follow_renames)
